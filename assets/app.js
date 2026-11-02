@@ -1,5 +1,5 @@
 /* ============================================================
-   База знаний Христианского клуба — логика приложения
+   База знаний Христианского клуба — вопросы и ответы, вкладки
    Зависит от data/knowledge.js (глобальные BOOKS, SRC, DATA)
    ============================================================ */
 (function(){
@@ -21,45 +21,61 @@
       if(!title) return label;
       var url = "https://ru.wikisource.org/wiki/" + encodeURI(title.replace(/ /g,"_")) + (chapter ? ("#"+chapter) : "");
       return '<a class="ref" href="'+url+'" target="_blank" rel="noopener" title="Открыть в Викитеке (синодальный перевод)">'+
-             label+'<span class="ext" aria-hidden="true"></span></a>';
+             label.replace(/ /g," ")+'<span class="ext" aria-hidden="true"></span></a>';
     });
   }
+  window.KB = window.KB || {};
+  KB.bibleReplace = bibleReplace;
 
-  var STAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.6l2.1 6.9 7.2.1-5.8 4.3 2.1 6.9L12 16.9l-5.7 4.9 2.1-6.9L2.6 8.6l7.2-.1z"/></svg>';
+  document.querySelectorAll('.js-ref').forEach(function(el){
+    el.outerHTML = bibleReplace('[[' + el.getAttribute('data-ref') + ']]');
+  });
+
+  function plural(n, one, few, many){
+    var m10 = n % 10, m100 = n % 100;
+    if(m10 === 1 && m100 !== 11) return one;
+    if(m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+    return many;
+  }
+  KB.plural = plural;
+
   var PLUS = '<svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
 
   var content = document.getElementById('content');
   var discIndex = document.getElementById('discIndex');
   var totalQ = 0;
 
-  /* ---- Отрисовка указателя разделов и самих разделов ---- */
+  /* ---- Какие ветви терминов относятся к разделу вопросов ---- */
+  var branchesByQa = {};
+  if(typeof TERMS_DATA !== 'undefined'){
+    TERMS_DATA.branches.forEach(function(b){ (branchesByQa[b.qa] = branchesByQa[b.qa] || []).push(b); });
+  }
+
+  /* ---- Оглавление и разделы ---- */
   DATA.forEach(function(cl, ci){
     var qn = cl.qa.length; totalQ += qn;
 
-    var card = document.createElement('a');
-    card.className = 'disc-card';
-    card.href = '#' + cl.id;
-    card.innerHTML =
-      '<span class="star">'+STAR+'</span>'+
-      '<span class="tt"><b>'+cl.title+'</b><span>'+cl.sub+'</span></span>'+
-      '<span class="qn">'+qn+'</span>';
-    discIndex.appendChild(card);
+    var li = document.createElement('li');
+    li.innerHTML = '<a href="#'+cl.id+'" data-sec="'+cl.id+'"><span class="tn">'+cl.title+'</span><span class="qn">'+qn+'</span></a>';
+    discIndex.appendChild(li);
 
     var sec = document.createElement('section');
     sec.className = 'cluster';
     sec.id = cl.id;
-    var head = '<div class="cluster-head"><div class="star">'+STAR+'</div>'+
-               '<div><h2>'+cl.title+'</h2><div class="cl-sub">'+cl.sub+'</div></div></div>'+
-               '<div class="cluster-rule"></div>';
-    sec.innerHTML = head;
+    var brs = branchesByQa[cl.id] || [];
+    var termsLink = brs.length ? '<div class="cl-terms">Термины раздела: ' + brs.map(function(b){
+        return '<a href="#terms/tree/'+b.id+'" data-branch="'+b.id+'">'+b.title+'</a>';
+      }).join(', ') + '</div>' : '';
+    sec.innerHTML = '<div class="cluster-head"><h2>'+cl.title+'</h2><div class="cl-sub">'+cl.sub+'</div>'+termsLink+'</div>';
 
     cl.qa.forEach(function(item, qi){
       var wrap = document.createElement('div');
       wrap.className = 'qa';
+      wrap.id = 'q-'+ci+'-'+qi;
       wrap.setAttribute('data-open','0');
       wrap.innerHTML =
-        '<button class="q" aria-expanded="false" id="q-'+ci+'-'+qi+'">'+item.q+PLUS+'</button>'+
-        '<div class="a-wrap" role="region" aria-labelledby="q-'+ci+'-'+qi+'">'+
+        '<button class="q" aria-expanded="false" id="qb-'+ci+'-'+qi+'">'+item.q+PLUS+'</button>'+
+        '<div class="a-wrap" role="region" aria-labelledby="qb-'+ci+'-'+qi+'">'+
           '<div class="a">'+bibleReplace(item.a)+
             '<div class="src"><span class="lbl">Источник:</span><span>'+item.s+'</span></div>'+
           '</div>'+
@@ -69,7 +85,11 @@
     content.appendChild(sec);
   });
 
-  document.getElementById('totalCount').textContent = totalQ + ' вопросов · ' + DATA.length + ' разделов';
+  document.getElementById('totalCount').textContent =
+    DATA.length + ' ' + plural(DATA.length,'раздел','раздела','разделов') + ', ' +
+    totalQ + ' ' + plural(totalQ,'вопрос','вопроса','вопросов');
+  document.getElementById('tabQaN').textContent = totalQ;
+  if(typeof TERMS_DATA !== 'undefined') document.getElementById('tabTermsN').textContent = TERMS_DATA.terms.length;
 
   /* ---- Аккордеон ---- */
   function setOpen(wrap, open){
@@ -82,6 +102,7 @@
       var done = function(){ if(wrap.getAttribute('data-open')==='1') inner.style.height='auto'; inner.removeEventListener('transitionend',done); };
       inner.addEventListener('transitionend', done);
     } else {
+      if(wrap.getAttribute('data-open') === '0' && inner.style.height !== 'auto') { inner.style.height = '0px'; return; }
       wrap.setAttribute('data-open','0');
       btn.setAttribute('aria-expanded','false');
       inner.style.height = inner.scrollHeight + 'px';
@@ -108,11 +129,11 @@
   var noRes = document.getElementById('noResults');
 
   function norm(s){ return s.toLowerCase().replace(/ё/g,'е'); }
+  KB.norm = norm;
 
   function clearMarks(el){
     el.querySelectorAll('mark').forEach(function(m){
-      var t = document.createTextNode(m.textContent);
-      m.parentNode.replaceChild(t, m);
+      m.parentNode.replaceChild(document.createTextNode(m.textContent), m);
     });
     el.normalize();
   }
@@ -130,7 +151,7 @@
       }
       return false;
     }
-    if(node.nodeType === 1 && node.tagName !== 'A' && node.tagName !== 'MARK'){
+    if(node.nodeType === 1 && node.tagName !== 'A' && node.tagName !== 'MARK' && node.tagName !== 'svg'){
       var found = false;
       Array.prototype.slice.call(node.childNodes).forEach(function(ch){ if(highlight(ch, term)) found = true; });
       return found;
@@ -156,20 +177,17 @@
       clearMarks(w.querySelector('.a'));
     });
     if(!term){
-      document.querySelectorAll('.qa,.cluster').forEach(function(el){ el.classList.remove('hidden'); setOpenIfQa(el,false); });
-      discIndex.classList.remove('hidden');
+      document.querySelectorAll('.qa,.cluster').forEach(function(el){ el.classList.remove('hidden'); if(el.classList.contains('qa')) setOpen(el,false); });
       noRes.style.display = 'none';
       updateCount();
       return;
     }
-    discIndex.classList.add('hidden');
     var anyGlobal = false;
     document.querySelectorAll('.cluster').forEach(function(sec){
       var anyInSec = false;
       sec.querySelectorAll('.qa').forEach(function(w){
-        var qt = norm(w.querySelector('.q').textContent);
-        var at = norm(w.querySelector('.a').textContent);
-        var hit = qt.indexOf(term) !== -1 || at.indexOf(term) !== -1;
+        var hit = norm(w.querySelector('.q').textContent).indexOf(term) !== -1 ||
+                  norm(w.querySelector('.a').textContent).indexOf(term) !== -1;
         w.classList.toggle('hidden', !hit);
         if(hit){
           anyInSec = true; anyGlobal = true;
@@ -185,22 +203,83 @@
     noRes.style.display = anyGlobal ? 'none' : 'block';
     updateCount();
   }
-  function setOpenIfQa(el, open){ if(el.classList.contains('qa')) setOpen(el, open); }
-
   updateCount();
+
+  /* ---- Подсветка текущего раздела в оглавлении ---- */
+  var tocLinks = {};
+  discIndex.querySelectorAll('a').forEach(function(a){ tocLinks[a.getAttribute('data-sec')] = a; });
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          Object.keys(tocLinks).forEach(function(k){ tocLinks[k].classList.remove('active'); });
+          var a = tocLinks[en.target.id];
+          if(a){ a.classList.add('active'); if(window.innerWidth <= 860) a.scrollIntoView({block:'nearest',inline:'nearest'}); }
+        }
+      });
+    }, {rootMargin:'-90px 0px -70% 0px'});
+    document.querySelectorAll('.cluster').forEach(function(s){ io.observe(s); });
+  }
+
+  /* ---- Вкладки ---- */
+  var tabs = document.querySelectorAll('.tab');
+  var panels = { qa: document.getElementById('panel-qa'), terms: document.getElementById('panel-terms') };
+  var current = 'qa';
+  function showTab(name, opts){
+    opts = opts || {};
+    if(!panels[name]) return;
+    var changed = current !== name;
+    current = name;
+    tabs.forEach(function(b){ b.setAttribute('aria-selected', b.getAttribute('data-tab') === name ? 'true' : 'false'); });
+    Object.keys(panels).forEach(function(k){ panels[k].hidden = (k !== name); });
+    if(name === 'terms' && KB.terms) KB.terms.activate();
+    if(changed && !opts.keepScroll) window.scrollTo({top:0});
+  }
+  KB.showTab = showTab;
+  tabs.forEach(function(b){
+    b.addEventListener('click', function(){
+      var name = b.getAttribute('data-tab');
+      if(name === 'terms'){ location.hash = KB.terms ? KB.terms.hash() : '#terms'; }
+      else { history.pushState(null, '', location.pathname + location.search); showTab('qa'); }
+    });
+  });
+  // клавиши ← → между вкладками
+  document.querySelector('.tabs').addEventListener('keydown', function(e){
+    if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    var arr = Array.prototype.slice.call(tabs);
+    var i = arr.indexOf(document.activeElement);
+    if(i < 0) return;
+    var n = arr[(i + (e.key === 'ArrowRight' ? 1 : arr.length - 1)) % arr.length];
+    n.focus(); n.click();
+  });
+  document.querySelector('.brand').addEventListener('click', function(e){
+    e.preventDefault(); history.pushState(null, '', location.pathname + location.search); showTab('qa'); window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  function route(){
+    var h = decodeURIComponent(location.hash || '');
+    if(h.indexOf('#terms') === 0){
+      showTab('terms', {keepScroll:true});
+      if(KB.terms) KB.terms.route(h);
+      return;
+    }
+    showTab('qa', {keepScroll:true});
+    if(h.length > 1){
+      var el = document.getElementById(h.slice(1));
+      if(el){
+        if(el.classList.contains('qa')) setOpen(el, true);
+        setTimeout(function(){ el.scrollIntoView(); }, 0);
+      }
+    }
+  }
+  KB.route = route;
+  window.addEventListener('hashchange', route);
 
   /* ---- Наверх ---- */
   var toTop = document.getElementById('toTop');
-  window.addEventListener('scroll', function(){
-    toTop.classList.toggle('show', window.scrollY > 600);
-  }, {passive:true});
+  window.addEventListener('scroll', function(){ toTop.classList.toggle('show', window.scrollY > 600); }, {passive:true});
   toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
 
-  /* ---- Открыть вопрос по якорю ---- */
-  window.addEventListener('load', function(){
-    if(location.hash){
-      var el = document.querySelector(location.hash);
-      if(el && el.classList.contains('qa')) setOpen(el, true);
-    }
-  });
+  // начальный маршрут — после загрузки модуля терминов
+  window.addEventListener('DOMContentLoaded', route);
 })();

@@ -4,49 +4,110 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>База знаний Христианского клуба</title>
-<meta name="description" content="Православная база знаний: вопросы и ответы по разделам богословия — апологетика, догматика, экклезиология, история Церкви. Со ссылками на Священное Писание.">
+<meta name="description" content="Православная база знаний: вопросы и ответы по разделам богословия и словарь богословских терминов в виде дерева, схемы и графа связей. Со ссылками на Священное Писание.">
 <meta name="theme-color" content="#114497">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <meta property="og:title" content="База знаний Христианского клуба">
-<meta property="og:description" content="Вопросы и ответы по разделам богословия со ссылками на Писание.">
+<meta property="og:description" content="Вопросы и ответы по разделам богословия и словарь терминов со ссылками на Писание.">
 <meta property="og:image" content="assets/logo.png">
 <meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="preload" href="assets/fonts/Petersburg.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
 
-<header class="hero">
-  <div class="hero-inner">
-    <img class="logo" src="assets/logo.png" alt="Эмблема: монограмма Христа (Хи-Ро) с буквами Альфа и Омега в окружении двенадцати звёзд">
-    <h1>База знаний<br>Христианского клуба</h1>
-    <p class="tagline">«Всегда быть готовыми всякому, требующему у вас отчёта в вашем уповании, дать ответ»</p>
-    <p class="lede">Собрание вопросов и ответов по разделам богословия. Ответы опираются на Священное Писание, догматическое богословие и историю Церкви; библейские цитаты — ссылки на синодальный перевод в «Викитеке».</p>
-    <div class="star-rule"><span class="ln"></span>
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.6l2.1 6.9 7.2.1-5.8 4.3 2.1 6.9L12 16.9l-5.7 4.9 2.1-6.9L2.6 8.6l7.2-.1z"/></svg>
-      <span class="ln"></span>
-    </div>
+<header class="masthead">
+  <div class="mast-inner">
+    <a class="brand" href="#" data-tab-link="qa">
+      <img class="logo" src="assets/logo.png" alt="Эмблема: монограмма Христа (Хи-Ро) с буквами Альфа и Омега в окружении двенадцати звёзд" width="64" height="64">
+      <span class="brand-text">
+        <span class="brand-title">База знаний Христианского клуба</span>
+        <span class="brand-verse">«Будьте всегда готовы всякому, требующему у вас отчёта в вашем уповании, дать ответ» <span class="js-ref" data-ref="1 Пет 3:15"></span></span>
+      </span>
+    </a>
+    <nav class="tabs" role="tablist" aria-label="Разделы сайта">
+      <button class="tab" role="tab" id="tab-qa" aria-controls="panel-qa" aria-selected="true" data-tab="qa">
+        Вопросы и ответы <span class="tab-n" id="tabQaN"></span>
+      </button>
+      <button class="tab" role="tab" id="tab-terms" aria-controls="panel-terms" aria-selected="false" data-tab="terms">
+        Дерево терминов <span class="tab-n" id="tabTermsN"></span>
+      </button>
+    </nav>
   </div>
 </header>
 
-<div class="toolbar">
-  <div class="toolbar-inner">
-    <div class="search">
-      <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
-      <input id="q" type="search" placeholder="Поиск по вопросам и ответам…" autocomplete="off" aria-label="Поиск">
-      <button class="clr" id="clr" aria-label="Очистить поиск">×</button>
+<!-- ============ Вопросы и ответы ============ -->
+<section class="panel" id="panel-qa" role="tabpanel" aria-labelledby="tab-qa">
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <div class="search">
+        <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+        <input id="q" type="search" placeholder="Поиск по вопросам и ответам" autocomplete="off" aria-label="Поиск по вопросам и ответам">
+        <button class="clr" id="clr" aria-label="Очистить поиск">×</button>
+      </div>
+      <button class="btn" id="expandAll">Развернуть всё</button>
+      <button class="btn" id="collapseAll">Свернуть всё</button>
+      <span class="count" id="count" aria-live="polite"></span>
     </div>
-    <button class="btn" id="expandAll">Развернуть всё</button>
-    <button class="btn" id="collapseAll">Свернуть всё</button>
-    <span class="count" id="count"></span>
   </div>
-</div>
 
-<main>
-  <div class="index-title" id="totalCount"></div>
-  <nav class="disc-index" id="discIndex" aria-label="Разделы богословия"></nav>
-  <div id="content"></div>
-  <div class="no-results" id="noResults">Ничего не найдено. Попробуйте изменить запрос.</div>
-</main>
+  <div class="qa-layout">
+    <aside class="toc" aria-label="Разделы богословия">
+      <p class="toc-title" id="totalCount"></p>
+      <ol class="toc-list" id="discIndex"></ol>
+    </aside>
+    <main class="qa-main">
+      <div id="content"></div>
+      <div class="no-results" id="noResults">Ничего не найдено. Попробуйте другое слово или откройте «Дерево терминов».</div>
+    </main>
+  </div>
+</section>
+
+<!-- ============ Дерево терминов ============ -->
+<section class="panel" id="panel-terms" role="tabpanel" aria-labelledby="tab-terms" hidden>
+  <div class="toolbar">
+    <div class="toolbar-inner wide">
+      <div class="search">
+        <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+        <input id="tq" type="search" placeholder="Найти термин: ипостась, епитимия, филиокве…" autocomplete="off" aria-label="Поиск термина" list="termList">
+        <datalist id="termList"></datalist>
+        <button class="clr" id="tclr" aria-label="Очистить поиск">×</button>
+      </div>
+      <div class="views" role="radiogroup" aria-label="Вид">
+        <button class="view-btn" data-view="tree" role="radio" aria-checked="true" title="Раскрывающийся список">Дерево</button>
+        <button class="view-btn" data-view="scheme" role="radio" aria-checked="false" title="Схема ветвей с раскрытием по щелчку">Схема</button>
+        <button class="view-btn" data-view="sun" role="radio" aria-checked="false" title="Круговая диаграмма: части, ветви, подгруппы">Круг</button>
+        <button class="view-btn" data-view="graph" role="radio" aria-checked="false" title="Граф перекрёстных связей между терминами">Граф связей</button>
+        <button class="view-btn" data-view="map" role="radio" aria-checked="false" title="Карта: площадь — число терминов">Карта</button>
+        <button class="view-btn" data-view="abc" role="radio" aria-checked="false" title="Алфавитный указатель">А–Я</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="terms-layout">
+    <div class="terms-stage">
+      <div class="legend" id="legend" aria-label="Части дерева"></div>
+      <div class="view" id="view-tree"></div>
+      <div class="view" id="view-scheme" hidden></div>
+      <div class="view" id="view-sun" hidden></div>
+      <div class="view" id="view-graph" hidden></div>
+      <div class="view" id="view-map" hidden></div>
+      <div class="view" id="view-abc" hidden></div>
+      <p class="view-hint" id="viewHint"></p>
+    </div>
+    <aside class="term-card" id="termCard" aria-live="polite">
+      <div class="term-empty" id="termEmpty">
+        <p class="te-lead">Выберите термин</p>
+        <p>Щёлкните по любому термину в дереве, схеме или графе — здесь появится определение, ссылки на Писание и связанные понятия.</p>
+        <p class="te-note">Термины, отмеченные знаком <span class="x-mark" aria-hidden="true">⊘</span>, — ереси и учения, отвергнутые Православной Церковью; они приведены, чтобы показать, от чего Церковь ограждает истину.</p>
+      </div>
+      <div class="term-body" id="termBody" hidden></div>
+    </aside>
+  </div>
+</section>
 
 <button class="totop" id="toTop" aria-label="Наверх">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
@@ -57,19 +118,23 @@
     <h3>Источники</h3>
     <ul class="sources">
       <li><b>Архиеп. Филарет (Гумилевский).</b> Православное догматическое богословие.</li>
+      <li><b>Свт. Филарет (Дроздов).</b> Пространный христианский катихизис Православной Кафолической Восточной Церкви (М., 2006).</li>
       <li><b>Р. Суинберн.</b> Существование Бога (Философская теология) — раздел апологетики.</li>
-      <li><b>История христианской церкви.</b></li>
-      <li><b>Общая история Церкви</b> (под ред. В. В. Симонова).</li>
+      <li><b>М. Э. Поснов.</b> История Христианской Церкви (до разделения Церквей — 1054 г.).</li>
+      <li><b>Общая история Церкви</b> (под ред. В. В. Симонова). Т. 1.</li>
       <li><b>Священное Писание</b> — синодальный перевод (ссылки ведут в «Викитеку»).</li>
     </ul>
     <p class="note">
-      Материал носит просветительский характер и следует православному вероучению. Ответы кратки по существу; при работе с отдельными вопросами сверяйтесь с полными текстами источников и толкованиями Церкви.
+      Материал носит просветительский характер и следует православному вероучению. Ответы и определения кратки; при изучении отдельных вопросов сверяйтесь с полными текстами источников и толкованиями Церкви.
       Библейские ссылки открываются в <a href="https://ru.wikisource.org/" target="_blank" rel="noopener">русской «Викитеке»</a> (общественное достояние).
     </p>
   </div>
 </footer>
 
 <script src="data/knowledge.js"></script>
+<script src="data/terms.js"></script>
+<script src="assets/vendor/d3.min.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/terms.js"></script>
 </body>
 </html>

@@ -1,0 +1,9 @@
+# Части дерева: верхний уровень, объединяющий ветви. Цвет — номер слота палитры (1–7).
+#   & id | Название | слот цвета | ветви через запятую
+& osn | Откровение и вера | 1 | osnovy,pisanie,apologetika
+& bog | Бог и творение | 2 | o-boge,troica,mir,duh
+& spas | Человек и спасение | 3 | chelovek,greh,hristos,spasenie,eshatologiya
+& cerk | Церковь и Таинства | 4 | cerkov,tainstva,pochitanie
+& bogosl | Богослужение | 5 | bogosluzhenie,hram,prazdniki
+& zhizn | Христианская жизнь | 6 | etika,asketika
+& ist | История Церкви | 7 | istoriya,otcy,eresi
