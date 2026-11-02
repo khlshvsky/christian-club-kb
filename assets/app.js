@@ -39,6 +39,19 @@
   }
   KB.plural = plural;
 
+  /* ---- Постоянные адреса вопросов: #q/<слаг из текста вопроса> ---- */
+  var TR = {а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'i',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'c',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya'};
+  function slugify(t){
+    var s = t.toLowerCase().split('').map(function(c){ return TR[c] !== undefined ? TR[c] : c; }).join('');
+    s = s.replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    var parts = s.split('-'), out = '';
+    for(var i = 0; i < parts.length; i++){ if((out + '-' + parts[i]).length > 60) break; out = out ? out + '-' + parts[i] : parts[i]; }
+    return out || 'q';
+  }
+  var slugSeen = {};
+  KB.qaIndex = [];   // [{ci, qi, q, slug, sec}]
+
+  var LINK = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>';
   var PLUS = '<svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
 
   var content = document.getElementById('content');
@@ -69,15 +82,20 @@
     sec.innerHTML = '<div class="cluster-head"><h2>'+cl.title+'</h2><div class="cl-sub">'+cl.sub+'</div>'+termsLink+'</div>';
 
     cl.qa.forEach(function(item, qi){
+      var slug = slugify(item.q);
+      if(slugSeen[slug]){ slugSeen[slug]++; slug += '-' + slugSeen[slug]; } else slugSeen[slug] = 1;
+      KB.qaIndex.push({ci:ci, qi:qi, q:item.q, slug:slug, sec:cl.id, secTitle:cl.title, a:item.a});
       var wrap = document.createElement('div');
       wrap.className = 'qa';
       wrap.id = 'q-'+ci+'-'+qi;
+      wrap.setAttribute('data-slug', slug);
       wrap.setAttribute('data-open','0');
       wrap.innerHTML =
         '<button class="q" aria-expanded="false" id="qb-'+ci+'-'+qi+'">'+item.q+PLUS+'</button>'+
         '<div class="a-wrap" role="region" aria-labelledby="qb-'+ci+'-'+qi+'">'+
           '<div class="a">'+bibleReplace(item.a)+
-            '<div class="src"><span class="lbl">Источник:</span><span>'+item.s+'</span></div>'+
+            '<div class="src"><span class="lbl">Источник:</span><span>'+item.s+'</span>'+
+              '<button type="button" class="share" data-share="'+slug+'" title="Скопировать ссылку на этот вопрос">'+LINK+'<span>Ссылка на вопрос</span></button></div>'+
           '</div>'+
         '</div>';
       sec.appendChild(wrap);
@@ -96,6 +114,7 @@
     var inner = wrap.querySelector('.a-wrap');
     var btn = wrap.querySelector('.q');
     if(open){
+      if(!wrap._linked && KB.linkTerms){ wrap._linked = true; KB.linkTerms(wrap.querySelector('.a')); }
       wrap.setAttribute('data-open','1');
       btn.setAttribute('aria-expanded','true');
       inner.style.height = inner.scrollHeight + 'px';
@@ -110,6 +129,8 @@
     }
   }
   content.addEventListener('click', function(e){
+    var sh = e.target.closest('[data-share]');
+    if(sh){ KB.shareLink('#q/' + sh.getAttribute('data-share'), sh.closest('.qa').querySelector('.q').textContent); return; }
     var btn = e.target.closest('.q');
     if(!btn) return;
     var wrap = btn.closest('.qa');
@@ -205,6 +226,46 @@
   }
   updateCount();
 
+  /* ---- Поделиться ссылкой ---- */
+  var toastEl = document.getElementById('toast'), toastT;
+  KB.toast = function(msg){
+    toastEl.textContent = msg; toastEl.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.hidden = true; }, 2200);
+  };
+  KB.shareLink = function(hash, title){
+    var url = location.origin + location.pathname + hash;
+    if(navigator.share && /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)){
+      navigator.share({title: title || document.title, url: url}).catch(function(){});
+      return;
+    }
+    var done = function(){ KB.toast('Ссылка скопирована'); };
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(url).then(done, function(){ fallback(); });
+    } else fallback();
+    function fallback(){
+      var ta = document.createElement('textarea'); ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch(err){ KB.toast(url); }
+      document.body.removeChild(ta);
+    }
+  };
+  KB.scrollToEl = function(el, gap){
+    var bar = document.querySelector('section.panel:not([hidden]) .toolbar');
+    var off = (bar ? bar.offsetHeight : 0) + (gap == null ? 16 : gap);
+    window.scrollTo({top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - off), behavior: 'instant'});
+  };
+  KB.openQuestion = function(slug){
+    var el = content.querySelector('.qa[data-slug="'+slug+'"]');
+    if(!el) return false;
+    if(input.value){ input.value=''; clr.style.display='none'; runSearch(); }
+    showTab('qa', {keepScroll:true});
+    setOpen(el, true);
+    setTimeout(function(){ KB.scrollToEl(el); }, 30);
+    el.classList.add('flash'); setTimeout(function(){ el.classList.remove('flash'); }, 1600);
+    return true;
+  };
+  KB.filterQa = function(q){ input.value = q; clr.style.display = q ? 'block' : 'none'; showTab('qa'); runSearch(); };
+
   /* ---- Подсветка текущего раздела в оглавлении ---- */
   var tocLinks = {};
   discIndex.querySelectorAll('a').forEach(function(a){ tocLinks[a.getAttribute('data-sec')] = a; });
@@ -214,7 +275,7 @@
         if(en.isIntersecting){
           Object.keys(tocLinks).forEach(function(k){ tocLinks[k].classList.remove('active'); });
           var a = tocLinks[en.target.id];
-          if(a){ a.classList.add('active'); if(window.innerWidth <= 860) a.scrollIntoView({block:'nearest',inline:'nearest'}); }
+          if(a){ a.classList.add('active'); if(window.innerWidth <= 860){ var L = discIndex; L.scrollLeft = a.offsetLeft - L.clientWidth / 2 + a.offsetWidth / 2; } }
         }
       });
     }, {rootMargin:'-90px 0px -70% 0px'});
@@ -223,7 +284,9 @@
 
   /* ---- Вкладки ---- */
   var tabs = document.querySelectorAll('.tab');
-  var panels = { qa: document.getElementById('panel-qa'), terms: document.getElementById('panel-terms') };
+  var panels = {};
+  document.querySelectorAll('section.panel').forEach(function(p){ panels[p.id.replace('panel-','')] = p; });
+  KB.hooks = KB.hooks || {};
   var current = 'qa';
   function showTab(name, opts){
     opts = opts || {};
@@ -231,8 +294,11 @@
     var changed = current !== name;
     current = name;
     tabs.forEach(function(b){ b.setAttribute('aria-selected', b.getAttribute('data-tab') === name ? 'true' : 'false'); });
+    var tb = document.querySelector('.tab[data-tab="'+name+'"]'), strip = document.querySelector('.tabs');
+    if(tb && strip.scrollWidth > strip.clientWidth) strip.scrollLeft = tb.offsetLeft - 16;
     Object.keys(panels).forEach(function(k){ panels[k].hidden = (k !== name); });
     if(name === 'terms' && KB.terms) KB.terms.activate();
+    if(KB.hooks[name] && KB.hooks[name].activate) KB.hooks[name].activate();
     if(changed && !opts.keepScroll) window.scrollTo({top:0});
   }
   KB.showTab = showTab;
@@ -240,7 +306,8 @@
     b.addEventListener('click', function(){
       var name = b.getAttribute('data-tab');
       if(name === 'terms'){ location.hash = KB.terms ? KB.terms.hash() : '#terms'; }
-      else { history.pushState(null, '', location.pathname + location.search); showTab('qa'); }
+      else if(name === 'qa'){ history.pushState(null, '', location.pathname + location.search); showTab('qa'); }
+      else { location.hash = (KB.hooks[name] && KB.hooks[name].hash) ? KB.hooks[name].hash() : '#' + name; }
     });
   });
   // клавиши ← → между вкладками
@@ -263,6 +330,13 @@
       if(KB.terms) KB.terms.route(h);
       return;
     }
+    var m = h.match(/^#(creed|bible)(?:\/(.*))?$/);
+    if(m){
+      showTab(m[1], {keepScroll:true});
+      if(KB.hooks[m[1]] && KB.hooks[m[1]].route) KB.hooks[m[1]].route(m[2] || '');
+      return;
+    }
+    if(h.indexOf('#q/') === 0){ KB.openQuestion(h.slice(3)); return; }
     showTab('qa', {keepScroll:true});
     if(h.length > 1){
       var el = document.getElementById(h.slice(1));

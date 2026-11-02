@@ -148,6 +148,7 @@
         (qaSec ? '<a href="#'+qaSec.id+'">Вопросы раздела «' + esc(qaSec.title) + '»</a>' : '') +
       '</div>';
     cardBody.innerHTML = html;
+    if(KB.linkTerms) KB.linkTerms(cardBody.querySelector('.tb-def'), {exclude:i, max:8});
     cardBody.hidden = false; cardEmpty.hidden = true;
     card.classList.add('open');
     card.scrollTop = 0;

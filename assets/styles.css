@@ -342,3 +342,143 @@ footer{border-top:2px solid var(--gold-bright);background:linear-gradient(180deg
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 .a i,.a em,.tb-def i,.tb-def em{font-family:var(--italic)}
+
+/* ============================================================
+   Дополнения: единый поиск, термины в тексте, «Символ веры», «Библия»
+   ============================================================ */
+.mast-top{display:flex;align-items:center;gap:24px;justify-content:space-between}
+.gsearch{position:relative;flex:0 1 380px;min-width:220px}
+.gsearch input{
+  width:100%;font-family:var(--sans);font-size:15px;color:#fff;background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.28);border-radius:9px;padding:10px 36px 10px 38px;outline:none;transition:background .15s,border-color .15s;
+}
+.gsearch input::placeholder{color:#c7d6f3}
+.gsearch input:focus{background:rgba(255,255,255,.16);border-color:var(--gold-bright)}
+.gsearch input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+.gsearch .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#c7d6f3}
+.gkey{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-family:var(--sans);font-size:12px;color:#c7d6f3;border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:0 6px;line-height:18px}
+.gsearch input:focus ~ .gkey{display:none}
+.gres{position:absolute;right:0;top:calc(100% + 6px);width:min(560px,calc(100vw - 32px));max-height:min(70vh,620px);overflow:auto;z-index:80;
+  background:var(--panel);color:var(--ink);border:1px solid var(--line-strong);border-radius:12px;box-shadow:0 18px 50px rgba(5,20,50,.28);padding:6px}
+.gr-group{padding:4px 0}
+.gr-group + .gr-group{border-top:1px solid var(--line)}
+.gr-h{font-family:var(--display);font-size:16px;color:var(--ink-soft);padding:8px 12px 4px}
+.gr-h span{font-family:var(--sans);font-size:12px;color:var(--ink-faint);font-weight:700}
+.gr-item{display:block;padding:8px 12px;border-radius:8px;color:var(--ink);text-decoration:none}
+.gr-item:hover,.gr-item.on{background:var(--hover);text-decoration:none}
+.gr-t{display:block;font-family:var(--serif);font-size:16px;line-height:1.35}
+.gr-sub{display:block;font-size:12.5px;color:var(--ink-faint);margin-top:1px}
+.gr-snip{display:block;font-size:13px;color:var(--ink-soft);margin-top:2px;line-height:1.4}
+.gr-more{font-size:14px;color:var(--link);font-weight:700}
+.gr-empty{padding:16px 14px;color:var(--ink-faint);font-size:14px}
+
+.term-link{border-bottom:1px dotted color-mix(in srgb,var(--link) 70%,transparent);cursor:help;color:inherit;border-radius:2px}
+.term-link:hover,.term-link:focus-visible{background:var(--hover);border-bottom-style:solid;outline:none}
+.term-link.is-x{border-bottom-color:color-mix(in srgb,var(--cinnabar) 70%,transparent)}
+.tpop{position:absolute;z-index:90;background:var(--panel);color:var(--ink);border:1px solid var(--line-strong);border-radius:12px;
+  box-shadow:0 14px 40px rgba(5,20,50,.25);padding:14px 16px}
+.tp-name{font-family:var(--display);font-size:20px;line-height:1.15}
+.tp-name::first-letter{color:var(--cinnabar)}
+.tp-g{font-family:var(--italic);font-style:italic;color:var(--ink-faint);font-size:14px;margin-top:2px}
+.tp-x{display:inline-block;font-size:12px;font-weight:700;color:var(--cinnabar);border:1px solid currentColor;border-radius:4px;padding:0 6px;margin-top:6px}
+.tp-d{font-family:var(--serif);font-size:15px;line-height:1.55;color:var(--ink-soft);margin:8px 0 10px}
+.tp-go{border:0;background:none;padding:0;color:var(--link);font-size:14px;cursor:pointer;font-family:var(--sans)}
+.tp-go:hover{text-decoration:underline}
+
+.share{margin-left:auto;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-strong);background:var(--panel);color:var(--ink-soft);
+  font-family:var(--sans);font-size:13px;border-radius:7px;padding:4px 10px;cursor:pointer}
+.share:hover{color:var(--link);border-color:var(--link)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:95;background:var(--lapis-deep);color:#fff;border-radius:10px;
+  padding:10px 18px;font-size:15px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%{background:var(--mark)}100%{background:transparent}}
+
+/* ---- Символ веры ---- */
+.creed-layout{max-width:var(--maxw);margin:0 auto;padding:28px 24px 30px;display:grid;grid-template-columns:300px minmax(0,1fr);gap:40px;align-items:start}
+.creed-nav{position:sticky;top:20px}
+.creed-mode{display:flex;gap:2px;background:var(--panel);border:1px solid var(--line-strong);border-radius:9px;padding:3px;margin-bottom:14px}
+.creed-mode button{flex:1;border:0;background:none;cursor:pointer;font-family:var(--sans);font-weight:700;font-size:13px;color:var(--ink-soft);padding:7px 8px;border-radius:6px}
+.creed-mode button[aria-checked="true"]{background:var(--lapis);color:#fff}
+.creed-list{list-style:none;margin:0;padding:0}
+.creed-list a{display:flex;gap:12px;align-items:baseline;padding:7px 10px;border-radius:8px;color:var(--ink-soft);border:1px solid transparent}
+.creed-list a:hover{background:var(--hover);text-decoration:none;color:var(--ink)}
+.creed-list a[aria-current="true"]{background:var(--panel);border-color:var(--line-strong);color:var(--ink)}
+.creed-list .cn{font-family:var(--display);font-size:18px;color:var(--cinnabar);min-width:22px;text-align:right}
+.creed-list .ct{font-family:var(--serif);font-size:15px;line-height:1.35}
+.creed-list .ct small{display:block;font-family:var(--sans);font-size:12.5px;color:var(--ink-faint);margin-top:2px}
+.creed-main{min-width:0;max-width:760px}
+.cr-head{margin-bottom:22px}
+.cr-head h2{font-size:clamp(26px,3.6vw,34px);margin:0 0 8px}
+.cr-sub{font-family:var(--serif);color:var(--ink-soft);font-size:16px;line-height:1.6;margin:0}
+.cr-num{font-family:var(--display);font-size:18px;color:var(--cinnabar);margin-bottom:6px}
+.cr-text{font-family:var(--display);font-size:clamp(24px,3.2vw,32px);line-height:1.3;margin:0;color:var(--ink)}
+.cr-text::first-letter{color:var(--cinnabar)}
+.cr-alt{font-family:var(--italic);font-style:italic;color:var(--ink-faint);font-size:16px;line-height:1.5;margin:10px 0 0}
+.cr-meta{font-size:14px;color:var(--ink-faint);margin:12px 0 0}
+.cr-sec{margin:0 0 26px;padding-top:18px;border-top:1px solid var(--line)}
+.cr-sec h3{font-size:21px;margin:0 0 10px;font-weight:400}
+.cr-body p{font-family:var(--serif);font-size:17px;line-height:1.7;color:var(--ink-soft);margin:0 0 .8em;max-width:70ch}
+.cr-src{font-size:13px;color:var(--ink-faint);margin:6px 0 0}
+.cr-words{display:grid;grid-template-columns:minmax(140px,max-content) 1fr;gap:8px 18px;margin:0}
+.cr-words dt{font-family:var(--display);font-size:17px;color:var(--ink)}
+.cr-words dd{margin:0;font-family:var(--serif);font-size:15.5px;line-height:1.55;color:var(--ink-soft)}
+.cr-qa{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.cr-qa a{font-family:var(--serif);font-size:16px}
+.cr-qa span{font-size:12.5px;color:var(--ink-faint);margin-left:8px}
+.cr-pager{display:flex;justify-content:space-between;gap:12px;padding-top:18px;border-top:1px solid var(--line);font-family:var(--display);font-size:18px}
+.cr-full{list-style:none;margin:0;padding:0}
+.cr-full a{display:flex;gap:14px;align-items:baseline;padding:10px 12px;border-radius:8px;color:var(--ink);font-family:var(--display);font-size:clamp(19px,2.4vw,23px);line-height:1.4}
+.cr-full a:hover{background:var(--hover);text-decoration:none}
+.cr-full .cn{color:var(--cinnabar);min-width:26px;text-align:right;font-size:.85em}
+a.chip{text-decoration:none;display:inline-flex;align-items:center}
+
+/* ---- Библия ---- */
+.bible-layout{max-width:var(--maxw);margin:0 auto;padding:24px 24px 30px}
+.bible-intro{max-width:780px;margin-bottom:10px}
+.bible-intro h2{font-size:clamp(25px,3.4vw,32px);margin:0 0 8px;font-weight:400}
+.bible-intro p{font-family:var(--serif);font-size:16px;line-height:1.65;color:var(--ink-soft);margin:0}
+.bg{margin:30px 0 0}
+.bg-head{margin-bottom:10px;max-width:780px}
+.bg-t{font-size:13px;color:var(--ink-faint)}
+.bg-head h3{font-size:24px;margin:2px 0 4px;font-weight:400}
+.bg-head h3::first-letter{color:var(--cinnabar)}
+.bg-n{font-family:var(--sans);font-size:13px;color:var(--ink-faint);font-weight:700}
+.bg-head p{font-family:var(--serif);font-size:15px;color:var(--ink-soft);margin:0;line-height:1.55}
+.bg-list{max-width:860px}
+.bk{border-bottom:1px solid var(--line)}
+.bk summary{list-style:none;display:flex;align-items:baseline;gap:12px;padding:11px 4px;cursor:pointer}
+.bk summary::-webkit-details-marker{display:none}
+.bk summary:hover .bk-name{color:var(--link)}
+.bk-abbr{font-family:var(--sans);font-size:12.5px;font-weight:700;color:var(--ink-faint);min-width:56px}
+.bk-name{font-family:var(--serif);font-size:17px;color:var(--ink);flex:1}
+.bk[open] .bk-name{color:var(--link)}
+.bk-tag{font-size:12px;color:var(--ink-faint);border:1px solid var(--line-strong);border-radius:20px;padding:0 8px;white-space:nowrap}
+.bk-ch{font-size:13px;color:var(--ink-faint);white-space:nowrap}
+.bk-body{padding:0 4px 16px 72px}
+.bk-meta{display:grid;grid-template-columns:max-content 1fr;gap:3px 14px;margin:0 0 8px;font-size:14px}
+.bk-meta dt{color:var(--ink-faint)}
+.bk-meta dd{margin:0;color:var(--ink-soft)}
+.bk-about{font-family:var(--serif);font-size:16px;line-height:1.65;color:var(--ink-soft);margin:0 0 10px;max-width:70ch}
+.bk-body h4{font-family:var(--display);font-size:17px;font-weight:400;margin:0 0 6px}
+.bk-keys{margin:0 0 12px;padding-left:18px;font-family:var(--serif);font-size:15px;color:var(--ink-soft);line-height:1.6}
+.bk-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;font-size:14px}
+.bk-actions .share{margin-left:0}
+
+@media (max-width:860px){
+  .mast-top{flex-direction:column;align-items:stretch;gap:14px}
+  .gsearch{flex:1 1 auto}
+  .gres{left:0;right:auto;width:100%}
+  .creed-layout{grid-template-columns:minmax(0,1fr);gap:16px;padding-top:16px}
+  .creed-nav{position:static}
+  .creed-list{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+  .creed-list a{white-space:nowrap;border-color:var(--line);background:var(--panel)}
+  .creed-list .ct small{display:none}
+  .cr-words{grid-template-columns:1fr}
+  .cr-words dd{margin-bottom:6px}
+  .bk-body{padding-left:4px}
+}
+@media (max-width:560px){
+  .bible-layout,.creed-layout{padding-left:16px;padding-right:16px}
+  .gkey{display:none}
+  .src .share span{display:none}
+}
