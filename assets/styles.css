@@ -200,7 +200,7 @@ mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
 .view-btn:hover{background:var(--hover);color:var(--ink)}
 .view-btn[aria-checked="true"]{background:var(--lapis);color:#fff}
 
-.terms-layout{margin:0 auto;padding:20px 24px 30px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px;align-items:start}
+.terms-layout{margin:0 auto;padding:20px 24px 30px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:24px;align-items:start}
 .terms-stage{min-width:0}
 .legend{display:flex;flex-wrap:wrap;gap:6px 8px;margin:0 0 14px}
 .legend button{
@@ -482,3 +482,7 @@ a.chip{text-decoration:none;display:inline-flex;align-items:center}
   .gkey{display:none}
   .src .share span{display:none}
 }
+.tb-ref{margin-top:4px}
+.tb-ref h4{font-family:var(--sans);font-size:13.5px;font-weight:700;color:var(--ink);margin:14px 0 4px}
+.tb-ref p{font-family:var(--serif);font-size:15.5px;line-height:1.65;color:var(--ink-soft);margin:0}
+.term-card:has(.tb-ref){scrollbar-gutter:stable}

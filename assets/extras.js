@@ -56,7 +56,7 @@
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: function(n){
         var p = n.parentNode;
-        while(p && p !== root){ if(/^(A|MARK|BUTTON|H1|H2|H3)$/.test(p.tagName) || (p.classList && (p.classList.contains('term-link') || p.classList.contains('src')))) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+        while(p && p !== root){ if(/^(A|MARK|BUTTON|H1|H2|H3|H4|DT)$/.test(p.tagName) || (p.classList && (p.classList.contains('term-link') || p.classList.contains('src')))) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
         return n.nodeValue.trim().length > 3 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
       }
     });
@@ -304,7 +304,7 @@
   var gq = document.getElementById('gq'), gres = document.getElementById('gres');
   var IDX = [];
   KB.qaIndex.forEach(function(x){ IDX.push({k:'q', title:x.q, sub:x.secTitle, body:strip(x.a), go:'#q/' + x.slug}); });
-  T.forEach(function(t){ IDX.push({k:'t', title:t.t, sub:t.g || '', body:strip(t.d), go:'#terms/tree/t:' + encodeURIComponent(t.t), x:t.x}); });
+  T.forEach(function(t){ IDX.push({k:'t', title:t.t, sub:t.g || '', body:strip(t.d + ' ' + (t.r || []).map(function(p){ return p[1]; }).join(' ')), go:'#terms/tree/t:' + encodeURIComponent(t.t), x:t.x}); });
   CREED.forEach(function(a){ IDX.push({k:'c', title:'Член ' + a.n + ': ' + a.theme, sub:a.slav, body:a.rus + ' ' + strip(a.body.join(' ')), go:'#creed/' + a.n}); });
   ALLBOOKS.forEach(function(b){ IDX.push({k:'b', title:b.name, sub:b.g.g, body:b.author + ' ' + b.about, go:'#bible/' + encodeURIComponent(b.abbr), abbr:b.abbr}); });
   IDX.forEach(function(x){ x.nt = norm(x.title); x.nb = norm(x.body); x.ns = norm(x.sub); });

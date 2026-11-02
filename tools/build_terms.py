@@ -103,6 +103,37 @@ if errors:
     print(f"\nОшибок: {len(errors)}")
     sys.exit(1)
 
+# Опровержения ересей: terms-src/oproverzheniya/*.txt
+LABELS = {"Учение": "Что утверждает заблуждение", "Писание": "Что говорит Писание",
+          "Отцы": "Что отвечают святые отцы", "Церковь": "Решение Церкви",
+          "Важно": "Почему это важно"}
+refut = {}
+for f in sorted((SRC_DIR / "oproverzheniya").glob("*.txt")):
+    cur = None
+    for n, raw in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+        line = raw.strip()
+        if not line or (line.startswith("#") and not line.startswith("###")):
+            continue
+        where = f"oproverzheniya/{f.name}:{n}"
+        if line.startswith("###"):
+            cur = line[3:].strip()
+            if cur not in terms:
+                errors.append(f"{where}: опровержение для неизвестного термина «{cur}»")
+            elif cur in refut:
+                errors.append(f"{where}: повтор опровержения «{cur}»")
+            refut[cur] = []
+            continue
+        m = re.match(r"^(\S+)\s+::\s+(.+)$", line)
+        if not m or m.group(1) not in LABELS or cur is None:
+            errors.append(f"{where}: не разобрана строка: {line[:60]}")
+            continue
+        refut[cur].append([LABELS[m.group(1)], m.group(2)])
+if errors:
+    print("\n".join(errors)); sys.exit(1)
+no_ref = [n for n in order if terms[n]["x"] and n not in refut]
+if no_ref:
+    print("Без опровержения:", ", ".join(no_ref))
+
 # Индексы
 idx = {name: i for i, name in enumerate(order)}
 out_terms = []
@@ -112,6 +143,7 @@ for name in order:
         "t": t["t"], "g": t["g"], "d": t["d"], "x": t["x"],
         "b": t["b"], "grp": t["grp"],
         "rel": sorted({idx[r] for r in t["rel"] if r != name}),
+        **({"r": refut[name]} if name in refut else {}),
     })
 out_branches = []
 for br in branches:
@@ -137,4 +169,5 @@ OUT.write_text(js, encoding="utf-8")
 links = sum(len(t["rel"]) for t in out_terms)
 print(f"Ветвей: {len(out_branches)}, подгрупп: {sum(len(b['groups']) for b in out_branches)}, "
       f"терминов: {len(out_terms)}, связей: {links}, ересей/заблуждений: {sum(t['x'] for t in out_terms)}")
+print(f"Опровержений: {len(refut)}")
 print(f"Записано: {OUT.relative_to(ROOT)} ({OUT.stat().st_size // 1024} КБ)")

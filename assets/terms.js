@@ -139,6 +139,9 @@
       (t.g ? '<p class="tb-greek">' + esc(t.g) + '</p>' : '') +
       (t.x ? '<div class="tb-x">⊘ Учение, отвергнутое Церковью</div>' : '') +
       '<p class="tb-def">' + KB.bibleReplace(esc(t.d)) + '</p>' +
+      (t.r ? '<section class="tb-ref"><h3 class="tb-h">Опровержение</h3>' + t.r.map(function(p){
+        return '<h4>' + esc(p[0]) + '</h4><p>' + KB.bibleReplace(esc(p[1])) + '</p>';
+      }).join('') + '</section>' : '') +
       (rel.length ? '<h3 class="tb-h">Связанные понятия</h3><div class="chips">' + rel.map(chip).join('') + '</div>' : '') +
       (sib.length ? '<h3 class="tb-h">В той же подгруппе</h3><div class="chips">' + sib.map(chip).join('') + '</div>' : '') +
       '<div class="tb-actions">' +
@@ -149,6 +152,7 @@
       '</div>';
     cardBody.innerHTML = html;
     if(KB.linkTerms) KB.linkTerms(cardBody.querySelector('.tb-def'), {exclude:i, max:8});
+    if(KB.linkTerms && t.r) KB.linkTerms(cardBody.querySelector('.tb-ref'), {exclude:i, max:10});
     cardBody.hidden = false; cardEmpty.hidden = true;
     card.classList.add('open');
     card.scrollTop = 0;
