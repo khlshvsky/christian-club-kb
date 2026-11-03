@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap">
 <link rel="preload" href="assets/fonts/Petersburg.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/styles.css?v=20261103a">
+<link rel="stylesheet" href="assets/styles.css?v=20261103c">
 </head>
 <body>
 
@@ -183,12 +183,16 @@
         <div class="map-tip" id="mapTip" hidden></div>
       </div>
       <div class="ev-cats" aria-label="Категории событий"></div>
-      <p class="map-note">Размер кружка — число событий в городе, цвет — преобладающая категория. Нажмите на город, чтобы открыть его хронологию. Колесо мыши или жест двумя пальцами приближают карту; кнопки над картой показывают Святую Землю, Грецию с Малой Азией и Русь.</p>
+      <p class="map-note">Размер кружка — число событий в городе, цвет — преобладающая категория. Нажмите на город, чтобы открыть его карточку. Колесо мыши или жест двумя пальцами приближают карту; кнопки над картой показывают Святую Землю, Грецию с Малой Азией и Русь.</p>
     </div>
-    <aside class="map-side" aria-labelledby="cityListH">
-      <h3 id="cityListH">Города</h3>
-      <div class="map-count" id="mapCount"></div>
-      <ol class="city-list" id="cityList"></ol>
+    <aside class="map-side" id="mapSide" aria-live="polite">
+      <div class="city-empty" id="cityEmpty">
+        <h3 id="cityListH">Города</h3>
+        <div class="map-count" id="mapCount"></div>
+        <p class="ce-hint">Выберите город на карте или в списке — здесь откроется его карточка с событиями.</p>
+        <ol class="city-list" id="cityList" aria-labelledby="cityListH"></ol>
+      </div>
+      <div class="city-body" id="cityBody" hidden></div>
     </aside>
   </div>
 </section>
@@ -235,16 +239,16 @@
   </div>
 </footer>
 
-<script src="data/knowledge.js?v=20261103a"></script>
-<script src="data/terms.js?v=20261103a"></script>
-<script src="data/creed.js?v=20261103a"></script>
-<script src="data/bible.js?v=20261103a"></script>
-<script src="data/land.js?v=20261103a"></script>
-<script src="data/events.js?v=20261103a"></script>
-<script src="assets/vendor/d3.min.js?v=20261103a"></script>
-<script src="assets/app.js?v=20261103a"></script>
-<script src="assets/terms.js?v=20261103a"></script>
-<script src="assets/extras.js?v=20261103a"></script>
-<script src="assets/maptime.js?v=20261103a"></script>
+<script src="data/knowledge.js?v=20261103c"></script>
+<script src="data/terms.js?v=20261103c"></script>
+<script src="data/creed.js?v=20261103c"></script>
+<script src="data/bible.js?v=20261103c"></script>
+<script src="data/land.js?v=20261103c"></script>
+<script src="data/events.js?v=20261103c"></script>
+<script src="assets/vendor/d3.min.js?v=20261103c"></script>
+<script src="assets/app.js?v=20261103c"></script>
+<script src="assets/terms.js?v=20261103c"></script>
+<script src="assets/extras.js?v=20261103c"></script>
+<script src="assets/maptime.js?v=20261103c"></script>
 </body>
 </html>

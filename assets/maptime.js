@@ -96,7 +96,7 @@
   ];
   var JORDAN = [[35.57,32.70],[35.58,32.55],[35.56,32.40],[35.55,32.25],[35.53,32.10],[35.54,31.95],[35.55,31.77]];
   var era = 'all', mapBuilt = false, hiCity = null, TW = {};
-  var svg, gLand, gMarks, gLabels, proj, path, zoom, T = null, W = 0, H = 0, data = [];
+  var svg, gLand, gMarks, gNums, gLabels, proj, path, zoom, T = null, W = 0, H = 0, data = [];
   var wrap, tip;
 
   function eraOf(id){ for(var i = 0; i < ERAS.length; i++) if(ERAS[i].id === id) return ERAS[i]; return ERAS[0]; }
@@ -143,6 +143,7 @@
     var sea = gLand.append('g').attr('class', 'm-seas');
     SEAS.forEach(function(s){ var p = proj([s[2], s[1]]); sea.append('text').attr('x', p[0]).attr('y', p[1]).text(s[0]); });
     gMarks = svg.append('g').attr('class', 'm-marks');
+    gNums = svg.append('g').attr('class', 'm-nums');   // числа поверх всех кружков (соседний город не закрывает)
     gLabels = svg.append('g').attr('class', 'm-labels');
     zoom = d3.zoom().scaleExtent([1, 18]).translateExtent([[-W * 0.1, -H * 0.1], [W * 1.1, H * 1.1]])
       .on('zoom', function(ev){ T = ev.transform; place(); hideTip(); });
@@ -159,27 +160,33 @@
     var en = sel.enter().append('g').attr('class', 'm-city').attr('tabindex', 0).attr('role', 'link');
     en.append('circle').attr('class', 'm-halo');
     en.append('circle').attr('class', 'm-dot');
-    en.append('text').attr('class', 'm-n').attr('dy', '0.35em');
     en.on('mouseenter', function(ev, d){ showTip(d); })
       .on('mouseleave', hideTip)
       .on('focus', function(ev, d){ showTip(d); })
       .on('blur', hideTip)
-      .on('click', function(ev, d){ goHash('#chrono/' + d.c.id); })
-      .on('keydown', function(ev, d){ if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); goHash('#chrono/' + d.c.id); } });
+      .on('click', function(ev, d){ pickCity(d.c.id); })
+      .on('keydown', function(ev, d){ if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); pickCity(d.c.id); } });
     var all = en.merge(sel);
     all.order();
-    all.attr('aria-label', function(d){ return d.c.name + ': ' + d.n + ' ' + plural(d.n, 'событие', 'события', 'событий') + ' — открыть хронологию'; })
+    all.attr('aria-label', function(d){ return d.c.name + ': ' + d.n + ' ' + plural(d.n, 'событие', 'события', 'событий') + ' — открыть карточку города'; })
       .classed('is-hi', function(d){ return d.c.id === hiCity; })
       .style('--cc', function(d){ return 'var(--c' + CAT[d.cat].c + ')'; });
     all.select('.m-dot').attr('r', function(d){ return radius(d.n); });
     all.select('.m-halo').attr('r', function(d){ return radius(d.n) + 6; });
-    all.select('.m-n').text(function(d){ return radius(d.n) >= 9 ? d.n : ''; });
+    var nums = gNums.selectAll('text').data(data.filter(function(d){ return radius(d.n) >= 9; }), function(d){ return d.c.id; });
+    nums.exit().remove();
+    nums.enter().append('text').attr('class', 'm-n').attr('dy', '0.35em').merge(nums).text(function(d){ return d.n; });
     // подписи
-    var lab = gLabels.selectAll('text').data(data, function(d){ return d.c.id; });
+    // Подпись = два текста: обводка-«ореол» снизу и сам текст сверху.
+    // (paint-order в Safari иногда рисует обводку поверх букв — подписи становились тёмными пятнами.)
+    var lab = gLabels.selectAll('g.m-lab').data(data, function(d){ return d.c.id; });
     lab.exit().remove();
-    lab.enter().append('text').text(function(d){ return d.c.name; })
+    var le = lab.enter().append('g').attr('class', 'm-lab');
+    le.append('text').attr('class', 'm-lh').text(function(d){ return d.c.name; });
+    le.append('text').attr('class', 'm-lt').text(function(d){ return d.c.name; })
       .each(function(d){ var w = this.getComputedTextLength(); if(w) TW[d.c.id] = w; });
     renderCityList();
+    renderCityCard();
     place();
   }
 
@@ -190,6 +197,7 @@
     gLand.select('.m-seas').style('font-size', (13 / k) + 'px').style('display', k > 5 ? 'none' : null);
     data.forEach(function(d){ var p = proj([d.c.lon, d.c.lat]); d.x = T.applyX(p[0]); d.y = T.applyY(p[1]); });
     gMarks.selectAll('g.m-city').attr('transform', function(d){ return 'translate(' + d.x + ',' + d.y + ')'; });
+    gNums.selectAll('text').attr('x', function(d){ return d.x; }).attr('y', function(d){ return d.y; });
     // раскладка подписей без наложений: сначала крупные города
     var boxes = [];
     data.forEach(function(d){ var r = radius(d.n); boxes.push([d.x - r, d.y - r, d.x + r, d.y + r, d.c.id]); });
@@ -209,17 +217,18 @@
         if(!hit){ placed[d.c.id] = c; boxes.push([c[3], c[4], c[5], c[6], '_']); break; }
       }
     });
-    gLabels.selectAll('text').each(function(d){
+    gLabels.selectAll('g.m-lab').each(function(d){
       var c = placed[d.c.id], el = d3.select(this);
       if(!c){ el.style('display', 'none'); return; }
-      el.style('display', null).attr('x', c[0]).attr('y', c[1]).attr('text-anchor', c[2]).classed('is-hi', d.c.id === hiCity);
+      el.style('display', null).classed('is-hi', d.c.id === hiCity);
+      el.selectAll('text').attr('x', c[0]).attr('y', c[1]).attr('text-anchor', c[2]);
     });
   }
 
   function showTip(d){
     var list = d.ev.slice(0, 4).map(function(e){ return '<li><b>' + esc(e.yl) + '</b> ' + esc(e.t) + '</li>'; }).join('');
     tip.innerHTML = '<div class="mt-h">' + esc(d.c.name) + '</div><div class="mt-s">' + esc(d.c.reg) + ' · ' + d.n + ' ' + plural(d.n, 'событие', 'события', 'событий') + '</div><ul>' + list + '</ul>' +
-      (d.n > 4 ? '<div class="mt-more">и ещё ' + (d.n - 4) + '…</div>' : '') + '<div class="mt-go">Нажмите, чтобы открыть хронологию</div>';
+      (d.n > 4 ? '<div class="mt-more">и ещё ' + (d.n - 4) + '…</div>' : '') + '<div class="mt-go">Нажмите, чтобы открыть карточку города</div>';
     tip.hidden = false;
     var tw = tip.offsetWidth, th = tip.offsetHeight, x = d.x + radius(d.n) + 12, y = d.y - 16;
     if(x + tw > W - 6) x = d.x - radius(d.n) - 12 - tw;
@@ -251,10 +260,66 @@
     var tot = data.reduce(function(s, d){ return s + d.n; }, 0);
     document.getElementById('mapCount').textContent = data.length + ' ' + plural(data.length, 'город', 'города', 'городов') + ' · ' + tot + ' ' + plural(tot, 'событие', 'события', 'событий');
     ul.innerHTML = data.map(function(d){
-      return '<li><a href="#chrono/' + d.c.id + '" style="--cc:var(--c' + CAT[d.cat].c + ')"' + (d.c.id === hiCity ? ' aria-current="true"' : '') + '>' +
+      return '<li><a href="#map/' + d.c.id + '" style="--cc:var(--c' + CAT[d.cat].c + ')"' + (d.c.id === hiCity ? ' aria-current="true"' : '') + '>' +
         '<span class="cl-name">' + esc(d.c.name) + '<small>' + esc(d.c.reg) + '</small></span><span class="cl-n">' + d.n + '</span></a></li>';
     }).join('');
   }
+
+  /* ---------- Карточка города (справа от карты, как карточка термина) ---------- */
+  function pickCity(id){
+    hideTip();
+    if(location.hash !== '#map/' + id) history.pushState(null, '', '#map/' + id);
+    hiCity = id;
+    gMarks.selectAll('g.m-city').classed('is-hi', function(d){ return d.c.id === hiCity; });
+    renderCityList(); renderCityCard(); place();
+  }
+  function renderCityCard(){
+    var side = document.getElementById('mapSide'), body = document.getElementById('cityBody');
+    if(!side) return;
+    if(!hiCity || !CITY[hiCity]){ side.classList.remove('has-city'); body.hidden = true; body.innerHTML = ''; return; }
+    var c = CITY[hiCity];
+    var allEv = EV.filter(function(e){ return e.city === hiCity; });
+    var st = null; data.forEach(function(d){ if(d.c.id === hiCity) st = d; });
+    var ev = st ? st.ev : [];
+    var cats = {}; ev.forEach(function(e){ cats[e.cat] = (cats[e.cat] || 0) + 1; });
+    var main = st ? CAT[st.cat] : CAT[allEv[0].cat];
+    var html =
+      '<button class="cc-close" type="button" aria-label="Закрыть карточку города">×</button>' +
+      '<div class="tb-path"><button type="button" data-cact="list">← Все города</button><span class="sep">·</span>' +
+        '<span class="dot" style="background:var(--c' + main.c + ')"></span>' + esc(c.reg) + '</div>' +
+      '<h2 class="tb-title">' + esc(c.name) + '</h2>' +
+      '<p class="cc-sum">' + allEv.length + ' ' + plural(allEv.length, 'событие', 'события', 'событий') +
+        (allEv.length > 1 ? ' · ' + esc(allEv[0].yl) + ' — ' + esc(allEv[allEv.length - 1].yl) : '') + '</p>' +
+      (ev.length ? '<div class="cc-cats">' + EVENT_CATS.filter(function(k){ return cats[k.id]; }).map(function(k){
+          return '<span style="--cc:var(--c' + k.c + ')">' + esc(k.t) + ' <b>' + cats[k.id] + '</b></span>'; }).join('') + '</div>' : '') +
+      (ev.length < allEv.length ? '<p class="cc-note">С учётом выбранных эпохи и категорий показано ' + ev.length + ' из ' + allEv.length + '. <button type="button" data-cact="reset">Показать все</button></p>' : '') +
+      (ev.length ? '<h3 class="tb-h">События</h3><ol class="cc-ev">' + ev.map(function(e){
+          return '<li style="--cc:var(--c' + CAT[e.cat].c + ')"><a href="#chrono/e' + e.i + '"><span class="cc-y">' + esc(e.yl) + '</span>' +
+            '<span class="cc-t">' + esc(e.t) + '</span></a><p>' + esc(e.d) + '</p></li>';
+        }).join('') + '</ol>' : '') +
+      '<div class="tb-actions"><a href="#chrono/' + hiCity + '">Хронология города</a>' +
+        '<button type="button" data-cact="zoom">Приблизить на карте</button></div>';
+    body.innerHTML = html;
+    if(KB.linkTerms) body.querySelectorAll('.cc-ev p').forEach(function(p){ KB.linkTerms(p, {max:2}); });
+    body.hidden = false; side.classList.add('has-city');
+    body.scrollTop = 0; side.scrollTop = 0;
+  }
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('#cityBody [data-cact], #cityBody .cc-close'); if(!b) return;
+    var act = b.getAttribute('data-cact');
+    if(act === 'zoom'){ zoomToCity(hiCity); return; }
+    if(act === 'reset'){
+      era = 'all';
+      document.querySelectorAll('#eraBtns [data-era]').forEach(function(x){ x.setAttribute('aria-checked', x.getAttribute('data-era') === 'all' ? 'true' : 'false'); });
+      EVENT_CATS.forEach(function(c){ catOn[c.id] = true; }); renderCats();
+      updateMap(); if(chronoBuilt) renderChrono(); return;
+    }
+    // «Все города» и крестик — закрыть карточку
+    history.pushState(null, '', '#map');
+    hiCity = null;
+    gMarks.selectAll('g.m-city').classed('is-hi', false);
+    renderCityList(); renderCityCard(); place();
+  });
 
   function initMapUi(){
     document.getElementById('eraBtns').innerHTML = ERAS.map(function(e){
@@ -295,13 +360,14 @@
 
   KB.hooks.map = {
     activate: function(){ setTimeout(ensureMap, 0); },
-    hash: function(){ return '#map'; },
+    hash: function(){ return '#map' + (hiCity ? '/' + hiCity : ''); },
     route: function(rest){
       setTimeout(function(){
         ensureMap();
+        var prev = hiCity;
         hiCity = CITY[rest] ? rest : null;
         updateMap();
-        if(hiCity) zoomToCity(hiCity);
+        if(hiCity && hiCity !== prev) zoomToCity(hiCity);
       }, 0);
     }
   };
