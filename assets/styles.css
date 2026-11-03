@@ -37,6 +37,7 @@
   /* части дерева терминов (проверены на различимость и дальтонизм) */
   --c1:#1f4fa8; --c2:#b5810f; --c3:#00899e; --c4:#b8342c;
   --c5:#7a4bb0; --c6:#3d8a3a; --c7:#b04a80;
+  --map-sea:#dfe7f4; --map-land:#ffffff;
 
   --serif:"Petersburg","PT Serif",Georgia,serif;
   --display:"Petersburg","PT Serif",Georgia,serif;
@@ -56,6 +57,7 @@
     --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
     --c1:#4d7fe0; --c2:#b9871a; --c3:#1aa3b8; --c4:#e2574a;
     --c5:#a07ae6; --c6:#4fa847; --c7:#d86aa0;
+    --map-sea:#070e1e; --map-land:#1a2a50;
     color-scheme:dark;
   }
 }
@@ -69,6 +71,7 @@
   --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
   --c1:#4d7fe0; --c2:#b9871a; --c3:#1aa3b8; --c4:#e2574a;
   --c5:#a07ae6; --c6:#4fa847; --c7:#d86aa0;
+  --map-sea:#070e1e; --map-land:#1a2a50;
   color-scheme:dark;
 }
 
@@ -486,3 +489,113 @@ a.chip{text-decoration:none;display:inline-flex;align-items:center}
 .tb-ref h4{font-family:var(--sans);font-size:13.5px;font-weight:700;color:var(--ink);margin:14px 0 4px}
 .tb-ref p{font-family:var(--serif);font-size:15.5px;line-height:1.65;color:var(--ink-soft);margin:0}
 .term-card:has(.tb-ref){scrollbar-gutter:stable}
+
+/* ============================================================
+   Карта
+   ============================================================ */
+.map-presets{display:flex;flex-wrap:wrap;gap:6px}
+.mp-btn{font-family:var(--sans);font-size:13.5px;font-weight:700;color:var(--link);background:var(--panel);border:1px solid var(--line-strong);border-radius:8px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+.mp-btn:hover{background:var(--hover)}
+.map-layout{max-width:var(--maxw);margin:0 auto;padding:22px 24px 30px;display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:28px;align-items:start}
+.map-wrap{position:relative;border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;background:var(--panel-2);box-shadow:var(--shadow)}
+.map-svg{display:block;width:100%;height:auto;touch-action:none;cursor:grab}
+.map-svg:active{cursor:grabbing}
+.m-sea{fill:var(--map-sea)}
+.m-land{fill:var(--map-land);stroke:color-mix(in srgb,var(--lapis) 35%,var(--line-strong));stroke-width:.8;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.m-grat{fill:none;stroke:color-mix(in srgb,var(--lapis) 14%,transparent);stroke-width:.6;vector-effect:non-scaling-stroke}
+.m-lake{fill:var(--map-sea);stroke:color-mix(in srgb,var(--lapis) 35%,var(--line-strong));stroke-width:.8;vector-effect:non-scaling-stroke}
+.m-river{fill:none;stroke:color-mix(in srgb,var(--lapis) 45%,var(--line-strong));stroke-width:1.6;vector-effect:non-scaling-stroke;stroke-linecap:round}
+.m-seas text{font-family:var(--italic);font-style:italic;fill:color-mix(in srgb,var(--lapis) 55%,var(--ink-faint));text-anchor:middle;letter-spacing:.06em;pointer-events:none}
+.m-city{cursor:pointer;outline:none}
+.m-dot{fill:var(--cc);stroke:var(--panel);stroke-width:1.6;fill-opacity:.92}
+.m-halo{fill:none;stroke:var(--cc);stroke-width:2;opacity:0}
+.m-city:hover .m-halo,.m-city:focus-visible .m-halo{opacity:.55}
+.m-city.is-hi .m-halo{opacity:.9;animation:mpulse 1.6s ease-in-out infinite}
+@keyframes mpulse{0%,100%{stroke-width:2}50%{stroke-width:5}}
+.m-n{font-family:var(--sans);font-size:11px;font-weight:700;fill:#fff;text-anchor:middle;pointer-events:none}
+.m-labels text{font-family:var(--sans);font-size:12.5px;font-weight:700;fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-width:3.5px;stroke-linejoin:round;pointer-events:none}
+.m-labels text.is-hi{fill:var(--cinnabar)}
+.map-ctl{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:4px}
+.map-ctl button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line-strong);background:var(--panel);color:var(--ink);font-size:20px;line-height:1;cursor:pointer;box-shadow:var(--shadow)}
+.map-ctl button:hover{background:var(--hover)}
+.map-tip{position:absolute;z-index:5;max-width:300px;background:var(--panel);border:1px solid var(--line-strong);border-radius:10px;box-shadow:var(--shadow);padding:10px 13px;pointer-events:none;font-size:13.5px;line-height:1.4}
+.mt-h{font-family:var(--display);font-size:19px;color:var(--ink)}
+.mt-s{color:var(--ink-faint);font-size:12.5px;margin-bottom:6px}
+.map-tip ul{margin:0;padding:0;list-style:none}
+.map-tip li{margin:3px 0;color:var(--ink-soft)}
+.map-tip li b{color:var(--ink);font-weight:700}
+.mt-more{color:var(--ink-faint);font-size:12.5px;margin-top:4px}
+.mt-go{color:var(--link);font-size:12.5px;font-weight:700;margin-top:7px}
+.map-note{font-size:14px;color:var(--ink-faint);margin:10px 2px 0;line-height:1.5;max-width:760px}
+.map-side{position:sticky;top:80px}
+.map-side h3{font-family:var(--display);font-weight:400;font-size:24px;margin:0}
+.map-count{font-size:13px;color:var(--ink-faint);margin:0 0 8px}
+.city-list{list-style:none;margin:0;padding:0;max-height:calc(100vh - 200px);overflow:auto;scrollbar-width:thin}
+.city-list a{display:flex;align-items:center;gap:10px;padding:6px 9px;border-radius:8px;color:var(--ink);border:1px solid transparent}
+.city-list a::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--cc);flex:0 0 auto}
+.city-list a:hover{background:var(--hover);text-decoration:none}
+.city-list a[aria-current="true"]{background:var(--panel);border-color:var(--line-strong)}
+.cl-name{flex:1;min-width:0;font-family:var(--serif);font-size:15.5px;line-height:1.25}
+.cl-name small{display:block;font-family:var(--sans);font-size:12px;color:var(--ink-faint)}
+.cl-n{font-weight:700;font-size:13px;color:var(--ink-soft);min-width:20px;text-align:right}
+
+/* категории событий (общие для карты и хронологии) */
+.ev-cats{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.ev-cat,.ev-cat-all{font-family:var(--sans);font-size:13.5px;color:var(--ink);background:var(--panel);border:1px solid var(--line-strong);border-radius:999px;padding:5px 12px 5px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.ev-cat::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--cc);flex:0 0 auto}
+.ev-cat[aria-pressed="false"]{color:var(--ink-faint);background:transparent;border-style:dashed}
+.ev-cat[aria-pressed="false"]::before{background:transparent;box-shadow:inset 0 0 0 1.5px var(--cc)}
+.ev-cat:hover,.ev-cat-all:hover{background:var(--hover)}
+.ev-cat-all{color:var(--link);font-weight:700;padding-left:12px}
+
+/* ============================================================
+   Хронология
+   ============================================================ */
+.chrono-layout{max-width:980px;margin:0 auto;padding:26px 24px 30px}
+.chrono-head h2{font-size:clamp(26px,3.6vw,34px);margin:0 0 6px;font-weight:400}
+.chrono-head h2::first-letter{color:var(--cinnabar)}
+.chrono-head p{font-family:var(--serif);font-size:16px;line-height:1.6;color:var(--ink-soft);margin:0 0 6px;max-width:780px}
+.chrono-head .ch-cnt{font-family:var(--sans);font-size:13.5px;color:var(--ink-faint)}
+.ch-k{font-size:13px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em}
+.ch-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.ch-btn{font-size:14px;font-weight:700;border:1px solid var(--line-strong);background:var(--panel);border-radius:8px;padding:6px 12px}
+.ch-btn:hover{background:var(--hover);text-decoration:none}
+.ch-empty{color:var(--ink-faint);margin:26px 0}
+.ch-reset{border:0;background:none;color:var(--link);cursor:pointer;font:inherit;font-weight:700;padding:0}
+.cent{margin-top:26px}
+.cent-h{font-family:var(--display);font-weight:400;font-size:24px;margin:0 0 4px;color:var(--ink);padding-bottom:6px;border-bottom:1px solid var(--line-strong)}
+.cent-h span{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink-faint);margin-left:4px}
+.ev-list{list-style:none;margin:0;padding:0}
+.ev{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px;padding:14px 8px;border-bottom:1px dotted var(--line-strong);border-radius:8px}
+.ev:last-child{border-bottom:0}
+.ev-date{font-family:var(--display);font-size:17px;line-height:1.3;color:var(--ink);position:relative;padding-left:18px}
+.ev-date::before{content:"";position:absolute;left:0;top:.42em;width:10px;height:10px;border-radius:50%;background:var(--cc)}
+.ev-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;font-size:13px;margin-bottom:2px}
+.ev-cat-l{color:var(--ink-faint);font-weight:700}
+.ev-city{font-weight:700}
+.ev-map{display:inline-flex;align-items:center;color:var(--ink-faint);padding:2px;border-radius:4px}
+.ev-map:hover{color:var(--link);background:var(--hover)}
+.ev-t{font-family:var(--display);font-weight:400;font-size:20px;line-height:1.25;margin:0 0 4px;color:var(--ink)}
+.ev-d{font-family:var(--serif);font-size:16px;line-height:1.6;color:var(--ink-soft);margin:0}
+.ev-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.ev-l{font-size:13.5px;line-height:1.3;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:4px 9px;display:inline-flex;gap:6px;align-items:baseline;max-width:100%}
+.ev-l span{font-size:11.5px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.ev-l:hover{background:var(--hover);border-color:var(--line-strong);text-decoration:none}
+
+@media (max-width:1000px){
+  .map-layout{grid-template-columns:minmax(0,1fr)}
+  .map-side{position:static}
+  .city-list{max-height:none;columns:2;column-gap:14px}
+  .city-list li{break-inside:avoid}
+}
+@media (max-width:560px){
+  .map-layout,.chrono-layout{padding-left:16px;padding-right:16px}
+  .map-layout{padding-top:14px}
+  .city-list{columns:2;column-gap:8px}
+  .city-list a{padding:4px 6px;gap:7px}
+  .cl-name{font-size:14.5px}
+  .cl-name small{display:none}
+  .ev{grid-template-columns:minmax(0,1fr);gap:4px;padding:12px 4px}
+  .ev-date{font-size:16px}
+  .ev-t{font-size:19px}
+}

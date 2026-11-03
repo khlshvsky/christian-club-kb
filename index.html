@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap">
 <link rel="preload" href="assets/fonts/Petersburg.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/styles.css?v=20261102e">
+<link rel="stylesheet" href="assets/styles.css?v=20261103a">
 </head>
 <body>
 
@@ -48,6 +48,12 @@
       </button>
       <button class="tab" role="tab" id="tab-bible" aria-controls="panel-bible" aria-selected="false" data-tab="bible">
         Библия <span class="tab-n" id="tabBibleN"></span>
+      </button>
+      <button class="tab" role="tab" id="tab-map" aria-controls="panel-map" aria-selected="false" data-tab="map">
+        Карта <span class="tab-n" id="tabMapN"></span>
+      </button>
+      <button class="tab" role="tab" id="tab-chrono" aria-controls="panel-chrono" aria-selected="false" data-tab="chrono">
+        Хронология <span class="tab-n" id="tabChronoN"></span>
       </button>
     </nav>
   </div>
@@ -159,6 +165,51 @@
   </div>
 </section>
 
+<section class="panel" id="panel-map" role="tabpanel" aria-labelledby="tab-map" hidden>
+  <div class="toolbar">
+    <div class="toolbar-inner wide">
+      <div class="views" id="eraBtns" role="radiogroup" aria-label="Эпоха"></div>
+      <div class="map-presets" id="mapPresets" aria-label="Показать область"></div>
+    </div>
+  </div>
+  <div class="map-layout">
+    <div class="map-main">
+      <div class="map-wrap" id="mapWrap">
+        <div id="mapSvgHost"></div>
+        <div class="map-ctl">
+          <button type="button" id="mapZoomIn" aria-label="Приблизить">+</button>
+          <button type="button" id="mapZoomOut" aria-label="Отдалить">−</button>
+        </div>
+        <div class="map-tip" id="mapTip" hidden></div>
+      </div>
+      <div class="ev-cats" aria-label="Категории событий"></div>
+      <p class="map-note">Размер кружка — число событий в городе, цвет — преобладающая категория. Нажмите на город, чтобы открыть его хронологию. Колесо мыши или жест двумя пальцами приближают карту; кнопки над картой показывают Святую Землю, Грецию с Малой Азией и Русь.</p>
+    </div>
+    <aside class="map-side" aria-labelledby="cityListH">
+      <h3 id="cityListH">Города</h3>
+      <div class="map-count" id="mapCount"></div>
+      <ol class="city-list" id="cityList"></ol>
+    </aside>
+  </div>
+</section>
+
+<section class="panel" id="panel-chrono" role="tabpanel" aria-labelledby="tab-chrono" hidden>
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <div class="search">
+        <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+        <input id="eq" type="search" placeholder="Найти событие: собор, Афанасий, икона…" autocomplete="off" aria-label="Поиск по хронологии">
+        <button class="clr" id="eclr" aria-label="Очистить поиск">×</button>
+      </div>
+    </div>
+  </div>
+  <div class="chrono-layout">
+    <div class="chrono-head" id="chronoHead"></div>
+    <div class="ev-cats" aria-label="Категории событий"></div>
+    <div id="chronoList"></div>
+  </div>
+</section>
+
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <div class="tpop" id="tpop" role="dialog" aria-modal="false" hidden></div>
 
@@ -184,13 +235,16 @@
   </div>
 </footer>
 
-<script src="data/knowledge.js?v=20261102e"></script>
-<script src="data/terms.js?v=20261102e"></script>
-<script src="data/creed.js?v=20261102e"></script>
-<script src="data/bible.js?v=20261102e"></script>
-<script src="assets/vendor/d3.min.js?v=20261102e"></script>
-<script src="assets/app.js?v=20261102e"></script>
-<script src="assets/terms.js?v=20261102e"></script>
-<script src="assets/extras.js?v=20261102e"></script>
+<script src="data/knowledge.js?v=20261103a"></script>
+<script src="data/terms.js?v=20261103a"></script>
+<script src="data/creed.js?v=20261103a"></script>
+<script src="data/bible.js?v=20261103a"></script>
+<script src="data/land.js?v=20261103a"></script>
+<script src="data/events.js?v=20261103a"></script>
+<script src="assets/vendor/d3.min.js?v=20261103a"></script>
+<script src="assets/app.js?v=20261103a"></script>
+<script src="assets/terms.js?v=20261103a"></script>
+<script src="assets/extras.js?v=20261103a"></script>
+<script src="assets/maptime.js?v=20261103a"></script>
 </body>
 </html>
