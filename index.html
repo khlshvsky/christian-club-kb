@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap">
 <link rel="preload" href="assets/fonts/Petersburg.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/styles.css?v=20261103c">
+<link rel="stylesheet" href="assets/styles.css?v=20261104a">
 </head>
 <body>
 
@@ -48,6 +48,9 @@
       </button>
       <button class="tab" role="tab" id="tab-bible" aria-controls="panel-bible" aria-selected="false" data-tab="bible">
         Библия <span class="tab-n" id="tabBibleN"></span>
+      </button>
+      <button class="tab" role="tab" id="tab-people" aria-controls="panel-people" aria-selected="false" data-tab="people">
+        Персоналии <span class="tab-n" id="tabPeopleN"></span>
       </button>
       <button class="tab" role="tab" id="tab-map" aria-controls="panel-map" aria-selected="false" data-tab="map">
         Карта <span class="tab-n" id="tabMapN"></span>
@@ -165,6 +168,34 @@
   </div>
 </section>
 
+<section class="panel" id="panel-people" role="tabpanel" aria-labelledby="tab-people" hidden>
+  <div class="toolbar">
+    <div class="toolbar-inner wide">
+      <div class="search">
+        <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+        <input id="pq" type="search" placeholder="Найти: Афанасий, Палама, иконы, молитва…" autocomplete="off" aria-label="Поиск персоналий">
+        <button class="clr" id="pclr" aria-label="Очистить поиск">×</button>
+      </div>
+      <span class="people-count" id="peopleCount"></span>
+    </div>
+  </div>
+  <div class="people-layout">
+    <div class="people-main">
+      <div class="pg-chips" id="peopleGroups" aria-label="Группы"></div>
+      <div id="peopleGrid"></div>
+      <p class="view-hint">Портреты — иконы, фрески и картины с Викисклада; у святых XX века — современные иконы. Нажмите на портрет, чтобы открыть биографию.</p>
+    </div>
+    <aside class="term-card person-card" id="personCard" aria-live="polite">
+      <div class="term-empty" id="personEmpty">
+        <p class="te-lead">Выберите персоналию</p>
+        <p>Нажмите на портрет — здесь появится биография с акцентом на значение человека для Церкви, его главные мысли и ссылки на труды.</p>
+        <p class="te-note">Знаком <span class="x-mark" aria-hidden="true">⊘</span> отмечены ересиархи и основатели инославных исповеданий: они включены, чтобы показать, с чем спорила Церковь.</p>
+      </div>
+      <div id="personBody" hidden></div>
+    </aside>
+  </div>
+</section>
+
 <section class="panel" id="panel-map" role="tabpanel" aria-labelledby="tab-map" hidden>
   <div class="toolbar">
     <div class="toolbar-inner wide">
@@ -239,16 +270,18 @@
   </div>
 </footer>
 
-<script src="data/knowledge.js?v=20261103c"></script>
-<script src="data/terms.js?v=20261103c"></script>
-<script src="data/creed.js?v=20261103c"></script>
-<script src="data/bible.js?v=20261103c"></script>
-<script src="data/land.js?v=20261103c"></script>
-<script src="data/events.js?v=20261103c"></script>
-<script src="assets/vendor/d3.min.js?v=20261103c"></script>
-<script src="assets/app.js?v=20261103c"></script>
-<script src="assets/terms.js?v=20261103c"></script>
-<script src="assets/extras.js?v=20261103c"></script>
-<script src="assets/maptime.js?v=20261103c"></script>
+<script src="data/knowledge.js?v=20261104a"></script>
+<script src="data/terms.js?v=20261104a"></script>
+<script src="data/creed.js?v=20261104a"></script>
+<script src="data/bible.js?v=20261104a"></script>
+<script src="data/land.js?v=20261104a"></script>
+<script src="data/events.js?v=20261104a"></script>
+<script src="data/people.js?v=20261104a"></script>
+<script src="assets/vendor/d3.min.js?v=20261104a"></script>
+<script src="assets/app.js?v=20261104a"></script>
+<script src="assets/terms.js?v=20261104a"></script>
+<script src="assets/people.js?v=20261104a"></script>
+<script src="assets/extras.js?v=20261104a"></script>
+<script src="assets/maptime.js?v=20261104a"></script>
 </body>
 </html>

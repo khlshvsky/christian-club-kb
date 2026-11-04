@@ -149,6 +149,7 @@
         (state.view !== 'graph' && rel.length ? '<button type="button" data-act="graph">Показать на графе</button>' : '') +
         (state.view !== 'scheme' ? '<button type="button" data-act="scheme">Показать на схеме</button>' : '') +
         (qaSec ? '<a href="#'+qaSec.id+'">Вопросы раздела «' + esc(qaSec.title) + '»</a>' : '') +
+        (KB.personByTerm && KB.personByTerm(t.t) ? '<a href="#people/' + KB.personByTerm(t.t).id + '">Биография и труды</a>' : '') +
       '</div>';
     cardBody.innerHTML = html;
     if(KB.linkTerms) KB.linkTerms(cardBody.querySelector('.tb-def'), {exclude:i, max:8});

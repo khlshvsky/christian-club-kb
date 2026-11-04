@@ -330,7 +330,7 @@
       if(KB.terms) KB.terms.route(h);
       return;
     }
-    var m = h.match(/^#(creed|bible|map|chrono)(?:\/(.*))?$/);
+    var m = h.match(/^#(creed|bible|people|map|chrono)(?:\/(.*))?$/);
     if(m){
       showTab(m[1], {keepScroll:true});
       if(KB.hooks[m[1]] && KB.hooks[m[1]].route) KB.hooks[m[1]].route(m[2] || '');

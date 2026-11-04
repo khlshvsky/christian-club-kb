@@ -307,10 +307,11 @@
   T.forEach(function(t){ IDX.push({k:'t', title:t.t, sub:t.g || '', body:strip(t.d + ' ' + (t.r || []).map(function(p){ return p[1]; }).join(' ')), go:'#terms/tree/t:' + encodeURIComponent(t.t), x:t.x}); });
   CREED.forEach(function(a){ IDX.push({k:'c', title:'Член ' + a.n + ': ' + a.theme, sub:a.slav, body:a.rus + ' ' + strip(a.body.join(' ')), go:'#creed/' + a.n}); });
   ALLBOOKS.forEach(function(b){ IDX.push({k:'b', title:b.name, sub:b.g.g, body:b.author + ' ' + b.about, go:'#bible/' + encodeURIComponent(b.abbr), abbr:b.abbr}); });
+  if(typeof PEOPLE !== 'undefined') PEOPLE.forEach(function(p){ IDX.push({k:'p', title:p.n, sub:p.r + ' · ' + p.y, body:p.bio.join(' ') + ' ' + p.th.join(' '), go:'#people/' + p.id, x:p.x}); });
   if(typeof EVENTS !== 'undefined') EVENTS.forEach(function(e, i){ IDX.push({k:'e', title:e[4], sub:e[1] + ' · ' + CITIES[e[2]][0], body:e[5], go:'#chrono/e' + i}); });
   IDX.forEach(function(x){ x.nt = norm(x.title); x.nb = norm(x.body); x.ns = norm(x.sub); });
-  var GROUPS = {q:'Вопросы и ответы', t:'Термины', e:'События', c:'Символ веры', b:'Книги Библии'};
-  var LIMIT = {q:6, t:6, e:4, c:3, b:4};
+  var GROUPS = {q:'Вопросы и ответы', t:'Термины', e:'События', p:'Персоналии', c:'Символ веры', b:'Книги Библии'};
+  var LIMIT = {q:6, t:6, p:4, e:4, c:3, b:4};
   var active = -1, flat = [];
 
   function score(x, q, words){
@@ -342,10 +343,10 @@
     var q = norm(gq.value.trim());
     if(q.length < 2){ closeG(); return; }
     var words = q.split(/\s+/).filter(function(w){ return w.length > 1; });
-    var res = {q:[], t:[], e:[], c:[], b:[]};
+    var res = {q:[], t:[], p:[], e:[], c:[], b:[]};
     IDX.forEach(function(x){ var s = score(x, q, words); if(s) res[x.k].push({x:x, s:s}); });
     flat = []; var html = '', total = 0;
-    ['t','q','e','c','b'].forEach(function(k){
+    ['p','t','q','e','c','b'].forEach(function(k){
       var arr = res[k].sort(function(a, b){ return b.s - a.s; });
       total += arr.length;
       if(!arr.length) return;

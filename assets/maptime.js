@@ -413,7 +413,11 @@
         '<a class="ev-map" href="#map/' + e.city + '" aria-label="' + esc(CITY[e.city].name) + ' на карте" title="Показать на карте">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></a></div>' +
         '<h4 class="ev-t">' + esc(e.t) + '</h4><p class="ev-d">' + esc(e.d) + '</p>' +
-        (e.links.length ? '<div class="ev-links">' + e.links.map(linkHtml).join('') + '</div>' : '') +
+        (function(){
+          var pp = KB.peopleForEvent ? KB.peopleForEvent(e.i) : [];
+          var links = pp.map(function(p){ return '<a class="ev-l" href="#people/' + p.id + '"><span>Персоналия</span>' + esc(p.n) + '</a>'; }).join('') + e.links.map(linkHtml).join('');
+          return links ? '<div class="ev-links">' + links + '</div>' : '';
+        })() +
         '</div></li>';
     });
     html += '</ol></section>';
