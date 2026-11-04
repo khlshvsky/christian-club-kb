@@ -48,8 +48,22 @@
     var im = img(p), g = GROUP[p.g];
     var fb = '<span class="pp-mono" style="--cc:var(--c' + g.c + ')" aria-hidden="true">' + esc(initials(p)) + '</span>';
     if(!im) return '<span class="' + cls + '">' + fb + '</span>';
-    return '<span class="' + cls + '">' + fb + '<img src="' + esc(im[0]) + '" alt="' + esc(p.n) + '" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()"></span>';
+    var big = cls === 'pc-img';
+    return '<span class="' + cls + '">' + fb + '<img src="' + esc(srcs(im[0])[big ? 1 : 0]) + '" data-src="' + esc(im[0]) + '" data-try="' + (big ? 1 : 0) + '" alt="' + esc(p.n) + '" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="KB.imgRetry(this)"></span>';
   }
+  /* Варианты адреса портрета: миниатюры стандартных размеров Викисклада (330, 500, 250),
+     у небольших исходных файлов — сам файл. Если сервер не отдал картинку (перегрузка,
+     ограничение частоты), пробуем следующий вариант с паузой, а в конце оставляем буквицу. */
+  function srcs(u){
+    if(u.indexOf('/500px-') !== -1) return [u.replace('/500px-', '/330px-'), u, u.replace('/500px-', '/250px-')];
+    return [u, u + '?r=1', u + '?r=2'];
+  }
+  KB.imgRetry = function(el){
+    var list = srcs(el.getAttribute('data-src')), t = +el.getAttribute('data-try') + 1;
+    if(t >= list.length + 1){ el.remove(); return; }
+    el.setAttribute('data-try', t);
+    setTimeout(function(){ el.src = list[t % list.length]; }, 900 * t);
+  };
   function workHref(w){
     var u = w[1];
     if(u.indexOf('az:') === 0) return {href:'https://azbyka.ru/otechnik/' + u.slice(3) + '/', src:'Азбука веры', ext:1};
